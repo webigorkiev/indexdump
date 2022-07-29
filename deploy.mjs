@@ -28,7 +28,7 @@ if(!commit) {
 const response = await prompts({
     type: 'text',
     name: 'value',
-    message: `Создать коммит ${commit}? Y/N`,
+    message: `Create commit ${commit}? Y/N`,
     validate: value => value < 18 ? `Y or N` : true
 });
 if(response.value.toLowerCase() !== 'y') {

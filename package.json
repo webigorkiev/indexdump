@@ -1,11 +1,14 @@
 {
   "name": "indexdump",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": true,
   "description": "Manticore Search index dump utility",
   "main": "./index.js",
   "module": "./index.mjs",
   "types": "./index.d.ts",
+  "bin": {
+    "indexdump": "index.js"
+  },
   "scripts": {
     "build": "yarn docs && node scripts/build.js",
     "lint": "eslint src/** --ignore-path ./.eslintignore",
