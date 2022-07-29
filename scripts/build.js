@@ -15,7 +15,7 @@ const external = [
     ...Object.keys(pkg.dependencies || {}),
     ...Object.keys(pkg.peerDependencies || {}),
     ...Object.keys(pkg.devDependencies || {}),
-    ...["path", "fs", "fs/promises", "crypto", "dns", "stream", "querystring"]
+    ...["path", "fs", "fs/promises", "crypto", "dns", "stream", "querystring", "process", "perf_hooks"]
 ];
 
 (async() => {
