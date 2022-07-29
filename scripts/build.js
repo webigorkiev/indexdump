@@ -1,5 +1,6 @@
 const path = require("path");
 const fs = require("fs-extra");
+const fsNode = require("fs");
 const { gzipSync } = require('zlib');
 const rollup = require("rollup");
 const {default:esbuild}  = require("rollup-plugin-esbuild");
@@ -34,7 +35,9 @@ const external = [
     });
     log("Copy files to dist dir");
     await buildPlugin("./src/index.ts", "./dist/index.js", "cjs");
+    addExecutable("./dist/index.js");
     await buildPlugin("./src/index.ts", "./dist/index.mjs", "esm");
+    addExecutable("./dist/index.mjs");
     log("Build plugin");
     await buildTypes(["./src/index.ts"], root);
     log("Build types client");
@@ -107,3 +110,9 @@ const checkFileSize = async(filePath) => {
         )} min:${minSize} / gzip:${gzippedSize}`
     );
 };
+
+const addExecutable = (file) => {
+    const filePath = path.resolve(file);
+    const fileString = fsNode.readFileSync(filePath, "utf8");
+    fsNode.writeFileSync(filePath, "#!/usr/bin/env node" + "\n\n" + fileString);
+}

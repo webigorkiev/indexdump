@@ -5,7 +5,7 @@
 ## Install
 
 ```shell
-yarn add indexdump
+yarn global add indexdump
 ```
 
 ## Create backup
