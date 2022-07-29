@@ -45,3 +45,9 @@ You can set chunk size for bulk inserts (default: 1000)
 ```shell
 indexdump -ch1000 indexname > dump.sql
 ```
+
+## Check version
+
+```shell
+indexdump -v
+```

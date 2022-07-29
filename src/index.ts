@@ -1,3 +1,5 @@
+import * as fs from "fs";
+import * as path from "path";
 import margv from "margv";
 import mariadb from "mariadb";
 import {stdout} from "process";
@@ -6,6 +8,15 @@ import {performance} from "perf_hooks";
 (async() => {
     const start = performance.now();
     const argv = margv();
+
+    const showVersion = argv.v || argv.version;
+
+    if(showVersion) {
+        const pkg = JSON.parse(fs.readFileSync(path.resolve("./package.json")).toString());
+        stdout.write("indexdump: " + pkg.version + "\n");
+        process.exit(0);
+    }
+
     const host = (argv.$.find((v: string) => v.indexOf("-h") === 0) || "").replace("-h", "") || argv["h"] || argv["host"] || "127.0.01";
     const port = (argv.$.find((v: string) => v.indexOf("-P") === 0) || "").replace("-P", "") || argv["P"] || argv["port"] || 9306;
     const chunk = (argv.$.find((v: string) => v.indexOf("-ch") === 0) || "").replace("-ch", "") || argv["ch"] || argv["chunk"] || 1000;
