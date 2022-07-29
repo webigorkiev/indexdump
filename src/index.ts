@@ -12,8 +12,7 @@ import {performance} from "perf_hooks";
     const showVersion = argv.v || argv.version;
 
     if(showVersion) {
-        const pkg = JSON.parse(fs.readFileSync(path.resolve("./package.json")).toString());
-        stdout.write("indexdump: " + pkg.version + "\n");
+        stdout.write("indexdump: %VERSION%" + "\n");
         process.exit(0);
     }
 

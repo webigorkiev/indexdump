@@ -36,7 +36,9 @@ const external = [
     log("Copy files to dist dir");
     await buildPlugin("./src/index.ts", "./dist/index.js", "cjs");
     addExecutable("./dist/index.js");
+    addVersion("./dist/index.js", pkg.version);
     await buildPlugin("./src/index.ts", "./dist/index.mjs", "esm");
+    addVersion("./dist/index.mjs", pkg.version);
     addExecutable("./dist/index.mjs");
     log("Build plugin");
     await buildTypes(["./src/index.ts"], root);
@@ -110,6 +112,13 @@ const checkFileSize = async(filePath) => {
         )} min:${minSize} / gzip:${gzippedSize}`
     );
 };
+
+const addVersion = (file, version) => {
+    const filePath = path.resolve(file);
+    let fileString = fsNode.readFileSync(filePath, "utf8");
+    fileString = fileString.replace("%VERSION%", version)
+    fsNode.writeFileSync(filePath, fileString);
+}
 
 const addExecutable = (file) => {
     const filePath = path.resolve(file);
