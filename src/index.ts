@@ -8,7 +8,7 @@ import {performance} from "perf_hooks";
     const argv = margv();
     const host = (argv.$.find((v: string) => v.indexOf("-h") === 0) || "").replace("-h", "") || argv["h"] || argv["host"] || "127.0.01";
     const port = (argv.$.find((v: string) => v.indexOf("-P") === 0) || "").replace("-P", "") || argv["P"] || argv["port"] || 9306;
-    const chunk = argv["ch"] || argv["chank"] || 500;
+    const chunk = (argv.$.find((v: string) => v.indexOf("-ch") === 0) || "").replace("-ch", "") || argv["ch"] || argv["chunk"] || 1000;
     const index = argv.$.pop();
 
     const startChunk = (cols: string[]) => stdout.write(`INSERT INTO ${index} (${cols.join(",")}) VALUES`);
@@ -30,7 +30,15 @@ import {performance} from "perf_hooks";
         .reduce((
             ac: Record<string, string>,
             row: { Field: string, Type: string, Properties: string }
-        ) => (ac[row['Field']] = row['Type'], ac), {});
+        ) => {
+            ac[row['Field']] = row['Type'];
+
+            if(row['Type'] === 'text' && row['Properties'].indexOf('stored') === -1) {
+                stdout.write(`-- WARNING: field ${row['Field']} NOT stored, so not included in output --\n`);
+            }
+
+            return ac;
+        }, {});
 
     // Data
     let count = 0, lastId = 0, next = true;

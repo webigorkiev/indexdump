@@ -1,6 +1,6 @@
 {
   "name": "indexdump",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "private": true,
   "description": "Manticore Search index dump utility",
   "main": "./index.js",

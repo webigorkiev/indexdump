@@ -1,8 +1,10 @@
-<!DOCTYPE html><html class="default"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>indexdump - v0.0.4</title><meta name="description" content="Documentation for indexdump - v0.0.4"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script async src="assets/search.js" id="search-script"></script></head><body><script>document.body.classList.add(localStorage.getItem("tsd-theme") || "os")</script><header><div class="tsd-page-toolbar"><div class="container"><div class="table-wrap"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget search no-caption">Search</label><input type="text" id="tsd-search-field"/></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">indexdump - v0.0.4</a></div><div class="table-cell" id="tsd-widgets"><div id="tsd-filter"><a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a><div class="tsd-filter-group"><div class="tsd-select" id="tsd-filter-visibility"><span class="tsd-select-label">All</span><ul class="tsd-select-list"><li data-value="public">Public</li><li data-value="protected">Public/Protected</li><li data-value="private" class="selected">All</li></ul></div> <input type="checkbox" id="tsd-filter-inherited" checked/><label class="tsd-widget" for="tsd-filter-inherited">Inherited</label><input type="checkbox" id="tsd-filter-externals" checked/><label class="tsd-widget" for="tsd-filter-externals">Externals</label></div></div><a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a></div></div></div></div><div class="tsd-page-title"><div class="container"><h1> indexdump - v0.0.4 </h1></div></div></header><div class="container container-main"><div class="row"><div class="col-8 col-content"><div class="tsd-panel tsd-typography">
+<!DOCTYPE html><html class="default"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>indexdump - v0.0.5</title><meta name="description" content="Documentation for indexdump - v0.0.5"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script async src="assets/search.js" id="search-script"></script></head><body><script>document.body.classList.add(localStorage.getItem("tsd-theme") || "os")</script><header><div class="tsd-page-toolbar"><div class="container"><div class="table-wrap"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget search no-caption">Search</label><input type="text" id="tsd-search-field"/></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">indexdump - v0.0.5</a></div><div class="table-cell" id="tsd-widgets"><div id="tsd-filter"><a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a><div class="tsd-filter-group"><div class="tsd-select" id="tsd-filter-visibility"><span class="tsd-select-label">All</span><ul class="tsd-select-list"><li data-value="public">Public</li><li data-value="protected">Public/Protected</li><li data-value="private" class="selected">All</li></ul></div> <input type="checkbox" id="tsd-filter-inherited" checked/><label class="tsd-widget" for="tsd-filter-inherited">Inherited</label><input type="checkbox" id="tsd-filter-externals" checked/><label class="tsd-widget" for="tsd-filter-externals">Externals</label></div></div><a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a></div></div></div></div><div class="tsd-page-title"><div class="container"><h1> indexdump - v0.0.5 </h1></div></div></header><div class="container container-main"><div class="row"><div class="col-8 col-content"><div class="tsd-panel tsd-typography">
 <a href="#manticore-search-index-dump-utility" id="manticore-search-index-dump-utility" style="color: inherit; text-decoration: none;">
   <h1>Manticore Search index dump utility</h1>
 </a>
 <p><a href="https://manticoresearch.com/">Manticore Search</a> index dump utility</p>
+<p>To work correctly, all text fields must be stored. If the field is only indexed - you can not get the original data.</p>
+<p>WARNING: Testing only on Manticore Search 5</p>
 
 <a href="#install" id="install" style="color: inherit; text-decoration: none;">
   <h2>Install</h2>
@@ -13,12 +15,32 @@
 <a href="#create-backup" id="create-backup" style="color: inherit; text-decoration: none;">
   <h2>Create backup</h2>
 </a>
-<pre><code class="language-shell"><span class="hl-0">indexdump -h127.0.01 -P9306 indexname &gt; dump.sql</span>
+<p>default:</p>
+<pre><code><span class="hl-0">* </span><span class="hl-1">host</span><span class="hl-0">: </span><span class="hl-2">127.0</span><span class="hl-0">.</span><span class="hl-2">0.1</span><br/><span class="hl-0">* </span><span class="hl-1">port</span><span class="hl-0">: </span><span class="hl-2">9306</span><br/><span class="hl-0">* </span><span class="hl-1">chunk</span><span class="hl-0">: </span><span class="hl-2">1000</span>
+</code></pre>
+
+<a href="#simple-example" id="simple-example" style="color: inherit; text-decoration: none;">
+  <h3>Simple example:</h3>
+</a>
+<pre><code class="language-shell"><span class="hl-0">indexdump indexname &gt; dump.sql</span>
+</code></pre>
+
+<a href="#all-params" id="all-params" style="color: inherit; text-decoration: none;">
+  <h3>All params</h3>
+</a>
+<pre><code class="language-shell"><span class="hl-0">indexdump -h127.0.0.1 -P9306 -ch1000 indexname &gt; dump.sql</span>
 </code></pre>
 
 <a href="#restore-from-backup" id="restore-from-backup" style="color: inherit; text-decoration: none;">
   <h2>Restore from backup</h2>
 </a>
 <pre><code class="language-shell"><span class="hl-0">mysql -P9306 &lt; dump.sql</span>
+</code></pre>
+
+<a href="#addition" id="addition" style="color: inherit; text-decoration: none;">
+  <h2>Addition</h2>
+</a>
+<p>You can set chunk size for bulk inserts (default: 1000)</p>
+<pre><code class="language-shell"><span class="hl-0">indexdump -ch1000 indexname &gt; dump.sql</span>
 </code></pre>
 </div></div><div class="col-4 col-menu menu-sticky-wrap menu-highlight"><nav class="tsd-navigation primary"><ul><li class="current"><a href="modules.html">Exports</a></li></ul></nav><nav class="tsd-navigation secondary menu-sticky"><ul></ul></nav></div></div></div><footer class="with-border-bottom"><div class="container"><h2>Settings</h2><p>Theme <select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></p></div></footer><div class="container tsd-generator"><p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div><div class="overlay"></div><script src="assets/main.js"></script></body></html>
