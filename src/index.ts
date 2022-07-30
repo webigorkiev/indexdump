@@ -1,5 +1,3 @@
-import * as fs from "fs";
-import * as path from "path";
 import margv from "margv";
 import mariadb from "mariadb";
 import {stdout} from "process";
@@ -19,9 +17,12 @@ import {performance} from "perf_hooks";
     const host = (argv.$.find((v: string) => v.indexOf("-h") === 0) || "").replace("-h", "") || argv["h"] || argv["host"] || "127.0.01";
     const port = (argv.$.find((v: string) => v.indexOf("-P") === 0) || "").replace("-P", "") || argv["P"] || argv["port"] || 9306;
     const chunk = (argv.$.find((v: string) => v.indexOf("-ch") === 0) || "").replace("-ch", "") || argv["ch"] || argv["chunk"] || 1000;
+    const dropTable = !!argv['add-drop-table'];
+    const addLocks = !!argv['add-locks'];
     const index = argv.$.pop();
+    const toTable = argv['to-table'] || index;
 
-    const startChunk = (cols: string[]) => stdout.write(`INSERT INTO ${index} (${cols.join(",")}) VALUES`);
+    const startChunk = (cols: string[]) => stdout.write(`INSERT INTO ${toTable} (${cols.join(",")}) VALUES`);
     const endChunk = (rows: string[]) => stdout.write(`${rows.join(",")};\n`);
 
     if(argv.$.length <= 1) {
@@ -31,12 +32,24 @@ import {performance} from "perf_hooks";
     const conn = await mariadb.createConnection({host, port});
 
     stdout.write(`-- START DUMP ${index} --\n`);
+    toTable !== index && stdout.write(`-- WITH TABLE NAME CHANGE TO ${toTable} --\n`);
+
+    // Add drop table
+    if(dropTable) {
+        stdout.write(`DROP TABLE ${toTable};\n`);
+    }
 
     // Create tables
-    stdout.write((await conn.query(`SHOW CREATE TABLE ${index};`))[0]['Create Table'] + ";\n");
+    const createTableString = (await conn.query(`SHOW CREATE TABLE ${index};`))[0]['Create Table']
+        .replace(RegExp(`CREATE[\\s\\t]+TABLE[\\s\\t]+${index}`, 'i'), `CREATE TABLE ${toTable}`);
+    const createTableFiltered = createTableString.split(/\r?\n/)
+        .filter((row: string) => !row.split(/\s+/)[0].endsWith('_len'))
+        .join("\n");
+    stdout.write(createTableFiltered + ";\n");
 
     // Select types
-    const types = (await conn.query(`DESCRIBE ${index};`))
+    const describe = await conn.query(`DESCRIBE ${index};`) as { Field: string, Type: string, Properties: string }[];
+    const types = describe
         .reduce((
             ac: Record<string, string>,
             row: { Field: string, Type: string, Properties: string }
@@ -49,12 +62,16 @@ import {performance} from "perf_hooks";
 
             return ac;
         }, {});
+    const allowsFields = describe
+        .filter((row) => !['tokencount'].includes(row['Type']))
+        .map((row) => row['Field'])
 
     // Data
     let count = 0, lastId = 0, next = true;
 
     while(next) {
         let i = 0, rows = [] as string[];
+        addLocks && await conn.query(`LOCK ${index};`);
         await new Promise(resolve => conn.queryStream(`SELECT *
                           FROM ${index}
                           WHERE id > ${lastId}
@@ -67,11 +84,17 @@ import {performance} from "perf_hooks";
                 process.exit(0);
             })
             .on("data", (row) => {
+
+                // Delete tokencount
+                Object.keys(row).forEach((key)  => {
+                    if(!allowsFields.includes(key)) {
+                        delete row[key];
+                    }
+                });
                 i === 0 && startChunk(Object.keys(row));
                 rows.push(`(${Object.entries(row)
                     .map((
-                        [key, value],
-                        index
+                        [key, value]
                     ) => types[key] === 'mva' ? `(${value})` : conn.escape(value)).join(',')})`);
                 lastId = row['id'];
                 i++;
@@ -83,7 +106,7 @@ import {performance} from "perf_hooks";
                 } else {
                     endChunk(rows);
                 }
-
+                addLocks && await conn.query(`UNLOCK ${index};`);
                 resolve(true);
             }));
     }
