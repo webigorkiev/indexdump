@@ -53,7 +53,7 @@ import {performance} from "perf_hooks";
 
         // Add drop table
         if(dropTable) {
-            stdout.write(`DROP TABLE ${toIndex};\n`);
+            stdout.write(`DROP TABLE IF EXISTS ${toIndex};\n`);
         }
 
         // Create tables

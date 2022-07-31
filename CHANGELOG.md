@@ -1,3 +1,9 @@
+## 1.0.2
+
+### Improvements
+
+* Add IF EXISTS to DROP TABLE
+
 ## 1.0.1
 
 ### Improvements
