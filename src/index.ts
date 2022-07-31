@@ -22,7 +22,7 @@ import {performance} from "perf_hooks";
     const host = (argv.$.find((v: string) => v.indexOf("-h") === 0) || "").replace("-h", "") || argv["h"] || argv["host"] || "127.0.01";
     const port = (argv.$.find((v: string) => v.indexOf("-P") === 0) || "").replace("-P", "") || argv["P"] || argv["port"] || 9306;
     const chunk = (argv.$.find((v: string) => v.indexOf("-ch") === 0) || "").replace("-ch", "") || argv["ch"] || argv["chunk"] || 1000;
-    const dropTable = !!(argv['add-drop-index'] || argv['add-drop-index']);
+    const dropTable = !!(argv['add-drop-index'] || argv['add-drop-table']);
     const addLocks = !!argv['add-locks'];
     const toTable = argv['to-index'] || argv['to-table'];
     const toPrefix = argv['prefix'] || "";

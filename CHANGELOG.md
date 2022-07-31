@@ -1,3 +1,9 @@
+## 1.0.3
+
+### Bug Fixes
+
+* fix --add-drop-table
+
 ## 1.0.2
 
 ### Improvements
