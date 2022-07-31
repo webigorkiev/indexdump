@@ -20,7 +20,7 @@ default:
     * port: 9306
     * chunk: 1000
 
-### Simple example:
+### Quick start:
 
 ```shell
 indexdump indexname > dump.sql
@@ -30,6 +30,29 @@ OR
 
 ```shell
 indexdump indexname | gzip > dump.sql.gz
+```
+### Dump all
+
+```shell
+indexdump --all | gzip > dump.sql.gz
+```
+
+### Dump all without data
+
+```shell
+indexdump --limit=0 --all  > dump.sql
+```
+
+### Dump all with prefix
+
+```shell
+indexdump --prefix=db --all | gzip > dump.sql.gz
+```
+
+### Dump for development all with prefix with limit
+
+```shell
+indexdump --limit=100 --prefix=db --all | gzip > dump.sql.gz
 ```
 
 ### All params
@@ -61,7 +84,7 @@ indexdump --add-drop-table indexname > dump.sql
 ```shell
 indexdump --to-table new-index-name indexname > dump.sql
 ```
-## Addition
+## Settings
 
 ### Chunk size
 

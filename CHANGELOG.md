@@ -1,3 +1,12 @@
+## 1.0.1
+
+### Improvements
+
+* add --prefix option
+* add --limit option (--limit=0 dump without data)
+* add --all option
+* add --indexes option 
+
 ## 0.0.8
 
 ### Improvements
