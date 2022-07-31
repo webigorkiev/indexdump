@@ -54,6 +54,7 @@ import {performance} from "perf_hooks";
                     const file = files[i];
                     const newFile = newFiles[i];
                     try {
+                        fs.mkdirSync(path.dirname(newFile), {recursive: true});
                         fs.copyFileSync(file, newFile);
                     } catch(e: any) {
                         stdout.write(`-- ${e.message} --\n`);

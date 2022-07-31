@@ -1,3 +1,9 @@
+## 1.1.1
+
+### Bug Fixes
+
+* Fix create dir for exceptions, stopwords and wordforms
+
 ## 1.1.0
 
 ## Improvements
