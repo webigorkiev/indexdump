@@ -1,3 +1,13 @@
+## 1.1.3
+
+### Improvements
+
+* Add backup and restore scenarios
+
+### Bug Fixes
+
+* Fix bug with enabled index_field_lengths
+
 ## 1.1.2
 
 ## Improvements

@@ -64,7 +64,7 @@ indexdump --limit=100 --prefix=db --all | gzip > dump.sql.gz
 indexdump --limit=100 --prefix=db --path=/var/wordsforms --all | gzip > dump.sql.gz
 ```
 
-### All params
+### Connection options
 
 ```shell
 indexdump -h127.0.0.1 -P9306 -ch1000 indexname > dump.sql
@@ -108,3 +108,38 @@ indexdump -ch1000 indexname > dump.sql
 ```shell
 indexdump -v
 ```
+
+## Backup scenarios
+
+Testing on Debian 10
+
+This is the complete script for cases with exceptions, stopwords and wordforms files
+
+### Backup
+
+```shell
+cd /var/backups
+mkdir indexdumpfiles
+cd indexdumpfiles
+indexdump --all --add-drop-table | gzip > dump.sql.gz
+cd ../
+tar -czvf indexdumpfiles.tar.gz indexdumpfiles/
+chmod 0755 indexdumpfiles.tar.gz
+rm -rf indexdumpfiles/
+
+```
+
+### Restore
+
+```shell
+cd /var/backups
+tar -xzvf indexdumpfiles.tar.gz
+cd indexdumpfiles
+ungzip < dump.sql.gz | mysql -P9306
+```
+
+If you want to restore a backup on another node or from another directory you need to specify the parameter --path=dir_for_resore
+
+This only matters if the exceptions, stopwords and wordforms files are listed in any of the indexes. 
+
+In other cases, you can restore a backup from any path.

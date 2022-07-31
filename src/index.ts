@@ -86,15 +86,6 @@ import {performance} from "perf_hooks";
             stdout.write(`DROP TABLE IF EXISTS ${toIndex};\n`);
         }
 
-        // Create tables
-        const createTableString = (await conn.query(`SHOW CREATE TABLE ${index};`))[0]['Create Table']
-            .replace(RegExp(`CREATE[\\s\\t]+TABLE[\\s\\t]+${index}`, 'i'), `CREATE TABLE ${toIndex}`);
-        let createTableFiltered = createTableString.split(/\r?\n/)
-            .filter((row: string) => !row.split(/\s+/)[0].endsWith('_len'))
-            .join("\n");
-        createTableFiltered = pathReplacer(createTableFiltered, path.resolve(filesPath, `./${toIndex}`));
-        stdout.write(createTableFiltered + ";\n");
-
         // Select types
         const describe = await conn.query(`DESCRIBE ${index};`) as { Field: string, Type: string, Properties: string }[];
         const types = describe
@@ -110,9 +101,22 @@ import {performance} from "perf_hooks";
 
                 return ac;
             }, {});
+
+        // Real fields
         const allowsFields = describe
             .filter((row) => !['tokencount'].includes(row['Type']))
             .map((row) => row['Field'])
+        const allFields = describe
+            .map((row) => row['Field'])
+
+        // Create tables
+        const createTableString = (await conn.query(`SHOW CREATE TABLE ${index};`))[0]['Create Table']
+            .replace(RegExp(`CREATE[\\s\\t]+TABLE[\\s\\t]+${index}`, 'i'), `CREATE TABLE ${toIndex}`);
+        let createTableFiltered = createTableString.split(/\r?\n/)
+            .filter((row: string) => !allFields.includes(row.split(/\s+/)[0]) || allowsFields.includes(row.split(/\s+/)[0]))
+            .join("\n");
+        createTableFiltered = pathReplacer(createTableFiltered, path.resolve(filesPath, `./${toIndex}`));
+        stdout.write(createTableFiltered + ";\n");
 
         if(limit !== 0) {
             // Data

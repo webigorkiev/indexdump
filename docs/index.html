@@ -1,11 +1,11 @@
-<!DOCTYPE html><html class="default"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>indexdump - v1.1.2</title><meta name="description" content="Documentation for indexdump - v1.1.2"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script async src="assets/search.js" id="search-script"></script></head><body><script>document.body.classList.add(localStorage.getItem("tsd-theme") || "os")</script><header><div class="tsd-page-toolbar"><div class="container"><div class="table-wrap"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget search no-caption">Search</label><input type="text" id="tsd-search-field"/></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">indexdump - v1.1.2</a></div><div class="table-cell" id="tsd-widgets"><div id="tsd-filter"><a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a><div class="tsd-filter-group"><div class="tsd-select" id="tsd-filter-visibility"><span class="tsd-select-label">All</span><ul class="tsd-select-list"><li data-value="public">Public</li><li data-value="protected">Public/Protected</li><li data-value="private" class="selected">All</li></ul></div> <input type="checkbox" id="tsd-filter-inherited" checked/><label class="tsd-widget" for="tsd-filter-inherited">Inherited</label><input type="checkbox" id="tsd-filter-externals" checked/><label class="tsd-widget" for="tsd-filter-externals">Externals</label></div></div><a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a></div></div></div></div><div class="tsd-page-title"><div class="container"><h1> indexdump - v1.1.2 </h1></div></div></header><div class="container container-main"><div class="row"><div class="col-8 col-content"><div class="tsd-panel tsd-typography">
+<!DOCTYPE html><html class="default"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>indexdump - v1.1.3</title><meta name="description" content="Documentation for indexdump - v1.1.3"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script async src="assets/search.js" id="search-script"></script></head><body><script>document.body.classList.add(localStorage.getItem("tsd-theme") || "os")</script><header><div class="tsd-page-toolbar"><div class="container"><div class="table-wrap"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget search no-caption">Search</label><input type="text" id="tsd-search-field"/></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">indexdump - v1.1.3</a></div><div class="table-cell" id="tsd-widgets"><div id="tsd-filter"><a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a><div class="tsd-filter-group"><div class="tsd-select" id="tsd-filter-visibility"><span class="tsd-select-label">All</span><ul class="tsd-select-list"><li data-value="public">Public</li><li data-value="protected">Public/Protected</li><li data-value="private" class="selected">All</li></ul></div> <input type="checkbox" id="tsd-filter-inherited" checked/><label class="tsd-widget" for="tsd-filter-inherited">Inherited</label><input type="checkbox" id="tsd-filter-externals" checked/><label class="tsd-widget" for="tsd-filter-externals">Externals</label></div></div><a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a></div></div></div></div><div class="tsd-page-title"><div class="container"><h1> indexdump - v1.1.3 </h1></div></div></header><div class="container container-main"><div class="row"><div class="col-8 col-content"><div class="tsd-panel tsd-typography">
 <a href="#manticore-search-index-dump-utility" id="manticore-search-index-dump-utility" style="color: inherit; text-decoration: none;">
   <h1>Manticore Search index dump utility</h1>
 </a>
 <p><a href="https://manticoresearch.com/">Manticore Search</a> index dump utility</p>
 <p>To work correctly, all text fields must be stored. If the field is only indexed - you can not get the original data.
 If the index specifies absolute empty spaces for the exceptions, stopwords and wordforms files, they are required for backup.
-File paths are automatically changed to <current directory>/<index name>/<file name>
+File paths are automatically changed to current_directory/index_name/file_name
 If the user does not have access to the index files, a warning will be written to the dump file</p>
 <p>WARNING: Testing only on Manticore Search 5</p>
 
@@ -61,8 +61,8 @@ If the user does not have access to the index files, a warning will be written t
 <pre><code class="language-shell"><span class="hl-0">indexdump --limit=100 --prefix=db --path=/var/wordsforms --all | gzip &gt; dump.sql.gz</span>
 </code></pre>
 
-<a href="#all-params" id="all-params" style="color: inherit; text-decoration: none;">
-  <h3>All params</h3>
+<a href="#connection-options" id="connection-options" style="color: inherit; text-decoration: none;">
+  <h3>Connection options</h3>
 </a>
 <pre><code class="language-shell"><span class="hl-0">indexdump -h127.0.0.1 -P9306 -ch1000 indexname &gt; dump.sql</span>
 </code></pre>
@@ -107,4 +107,25 @@ If the user does not have access to the index files, a warning will be written t
 </a>
 <pre><code class="language-shell"><span class="hl-0">indexdump -v</span>
 </code></pre>
+
+<a href="#backup-scenarios" id="backup-scenarios" style="color: inherit; text-decoration: none;">
+  <h2>Backup scenarios</h2>
+</a>
+<p>Testing on Debian 10</p>
+<p>This is the complete script for cases with exceptions, stopwords and wordforms files</p>
+
+<a href="#backup" id="backup" style="color: inherit; text-decoration: none;">
+  <h3>Backup</h3>
+</a>
+<pre><code class="language-shell"><span class="hl-3">cd</span><span class="hl-0"> /var/backups</span><br/><span class="hl-0">mkdir indexdumpfiles</span><br/><span class="hl-3">cd</span><span class="hl-0"> indexdumpfiles</span><br/><span class="hl-0">indexdump --all --add-drop-table | gzip &gt; dump.sql.gz</span><br/><span class="hl-3">cd</span><span class="hl-0"> ../</span><br/><span class="hl-0">tar -czvf indexdumpfiles.tar.gz indexdumpfiles/</span><br/><span class="hl-0">chmod 0755 indexdumpfiles.tar.gz</span><br/><span class="hl-0">rm -rf indexdumpfiles/</span><br/>
+</code></pre>
+
+<a href="#restore" id="restore" style="color: inherit; text-decoration: none;">
+  <h3>Restore</h3>
+</a>
+<pre><code class="language-shell"><span class="hl-3">cd</span><span class="hl-0"> /var/backups</span><br/><span class="hl-0">tar -xzvf indexdumpfiles.tar.gz</span><br/><span class="hl-3">cd</span><span class="hl-0"> indexdumpfiles</span><br/><span class="hl-0">ungzip &lt; dump.sql.gz | mysql -P9306</span>
+</code></pre>
+<p>If you want to restore a backup on another node or from another directory you need to specify the parameter --path=dir_for_resore</p>
+<p>This only matters if the exceptions, stopwords and wordforms files are listed in any of the indexes. </p>
+<p>In other cases, you can restore a backup from any path.</p>
 </div></div><div class="col-4 col-menu menu-sticky-wrap menu-highlight"><nav class="tsd-navigation primary"><ul><li class="current"><a href="modules.html">Exports</a></li></ul></nav><nav class="tsd-navigation secondary menu-sticky"><ul></ul></nav></div></div></div><footer class="with-border-bottom"><div class="container"><h2>Settings</h2><p>Theme <select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></p></div></footer><div class="container tsd-generator"><p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div><div class="overlay"></div><script src="assets/main.js"></script></body></html>
