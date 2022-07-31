@@ -3,6 +3,9 @@
 [Manticore Search](https://manticoresearch.com/) index dump utility
 
 To work correctly, all text fields must be stored. If the field is only indexed - you can not get the original data.
+If the index specifies absolute empty spaces for the exceptions, stopwords and wordforms files, they are required for backup.
+File paths are automatically changed to <current directory>/<index name>/<file name>
+If the user does not have access to the index files, a warning will be written to the dump file
 
 WARNING: Testing only on Manticore Search 5
 
@@ -53,6 +56,12 @@ indexdump --prefix=db --all | gzip > dump.sql.gz
 
 ```shell
 indexdump --limit=100 --prefix=db --all | gzip > dump.sql.gz
+```
+
+### Dump with indication of base directory for exceptions, stopwords and wordforms files
+
+```shell
+indexdump --limit=100 --prefix=db --path=/var/wordsforms --all | gzip > dump.sql.gz
 ```
 
 ### All params

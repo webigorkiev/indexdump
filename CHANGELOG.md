@@ -1,3 +1,10 @@
+## 1.1.0
+
+## Improvements
+
+* add --path option (path to base dir for exceptions, stopwords and wordforms)
+* copy exceptions, stopwords and wordforms to the curren path or path in --path option (only locally and need access to index files)
+
 ## 1.0.3
 
 ### Bug Fixes

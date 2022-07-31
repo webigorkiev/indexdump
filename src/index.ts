@@ -1,3 +1,5 @@
+import * as fs from "fs";
+import * as path from "path";
 import margv from "margv";
 import mariadb from "mariadb";
 import {stdout} from "process";
@@ -29,11 +31,38 @@ import {performance} from "perf_hooks";
     const tables = argv['indexes'] || argv['tables'];
     const all = argv['all']; // all - all tables or array of tables names
     const limit = argv['limit'] ? parseInt(argv['limit']) : argv['limit'];
+    const filesPath = argv['path'] || path.resolve();
     const index = tables || argv.$.pop();
 
     if(toTable && tables) {
         console.error("Error parse arguments. You can`t use to-table and tables together")
         process.exit(0);
+    }
+
+    // helper for matching path
+    const pathReplacer = (strIndexCreate: string, pathToFile: string): string => {
+        ["exceptions","stopwords","wordforms"].forEach((label) => {
+            const matches = strIndexCreate.match(RegExp(`${label}='([^']*)'`));
+            const files =  (matches?.[1]?.split(/\s+/) || []).filter((file) => /^([A-Z]:)?\//.test(file));
+
+            if(files.length) {
+                const newFiles = files.map((file) => path.resolve(pathToFile, `./${path.basename(file)}`));
+                const newFilesString = newFiles.join(' ');
+                strIndexCreate = strIndexCreate.replace(matches![0], `${label}='${newFilesString}'`);
+
+                for(let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const newFile = newFiles[i];
+                    try {
+                        fs.copyFileSync(file, newFile);
+                    } catch(e: any) {
+                        stdout.write(`-- ${e.message} --\n`);
+                    }
+                }
+            }
+        });
+
+        return strIndexCreate;
     }
 
     // connection
@@ -59,9 +88,10 @@ import {performance} from "perf_hooks";
         // Create tables
         const createTableString = (await conn.query(`SHOW CREATE TABLE ${index};`))[0]['Create Table']
             .replace(RegExp(`CREATE[\\s\\t]+TABLE[\\s\\t]+${index}`, 'i'), `CREATE TABLE ${toIndex}`);
-        const createTableFiltered = createTableString.split(/\r?\n/)
+        let createTableFiltered = createTableString.split(/\r?\n/)
             .filter((row: string) => !row.split(/\s+/)[0].endsWith('_len'))
             .join("\n");
+        createTableFiltered = pathReplacer(createTableFiltered, path.resolve(filesPath, `./${toIndex}`));
         stdout.write(createTableFiltered + ";\n");
 
         // Select types
