@@ -1,3 +1,9 @@
+## 1.1.2
+
+## Improvements
+
+* Added documentation
+
 ## 1.1.1
 
 ### Bug Fixes
