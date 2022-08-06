@@ -1,145 +1,104 @@
-# Manticore Search index dump utility
+# [Manticore Search](https://manticoresearch.com/) index dump utility
 
-[Manticore Search](https://manticoresearch.com/) index dump utility
+Used for logical backup of indexes and exceptions, stopwords and wordforms files. 
+For a physical backup of the index files, use [indexbackup](https://github.com/webigorkiev/indexbackup)
 
-To work correctly, all text fields must be stored. If the field is only indexed - you can not get the original data.
-If the index specifies absolute empty spaces for the exceptions, stopwords and wordforms files, they are required for backup.
-File paths are automatically changed to current_directory/index_name/file_name
-If the user does not have access to the index files, a warning will be written to the dump file
+To work correctly, all **text fields must be stored**. If the field is only indexed - you can not get the original data.
+If the index specifies absolute path for the exceptions, stopwords and wordforms files, they are required for backup.
+File paths are automatically changed to current_directory/index_name/file_name. To backup these files, you need to have read access or use sudo
 
-WARNING: Testing only on Manticore Search 5
+WARNING: Testing only on Manticore Search 5 for RT indexes
 
-## Install
+## Quick start
 
+### Install
 ```shell
-yarn global add indexdump
+:/var/backup# yarn global add indexdump
 ```
 
-## Create backup
-
-default:
-
-    * host: 127.0.0.1
-    * port: 9306
-    * chunk: 1000
-
-### Quick start:
+### Check backup possibility
 
 ```shell
-indexdump indexname > dump.sql
+:/var/backup# indexdump --dry-run test_index
 ```
-
-OR
-
-```shell
-indexdump indexname | gzip > dump.sql.gz
-```
-### Dump all
-
-```shell
-indexdump --all | gzip > dump.sql.gz
-```
-
-### Dump all without data
-
-```shell
-indexdump --limit=0 --all  > dump.sql
-```
-
-### Dump all with prefix
-
-```shell
-indexdump --prefix=db --all | gzip > dump.sql.gz
-```
-
-### Dump for development all with prefix with limit
-
-```shell
-indexdump --limit=100 --prefix=db --all | gzip > dump.sql.gz
-```
-
-### Dump with indication of base directory for exceptions, stopwords and wordforms files
-
-```shell
-indexdump --limit=100 --prefix=db --path=/var/wordsforms --all | gzip > dump.sql.gz
-```
-
-### Connection options
-
-```shell
-indexdump -h127.0.0.1 -P9306 -ch1000 indexname > dump.sql
-```
-
-### Restore from backup
-
-```shell
-mysql -P9306 < dump.sql
-```
-
-### Add LOCK statement
-
-```shell
-indexdump --add-locks indexname > dump.sql
-```
-
-### Add DROP TABLE statement
-
-```shell
-indexdump --add-drop-table indexname > dump.sql
-```
-
-### Rename index
-
-```shell
-indexdump --to-table new-index-name indexname > dump.sql
-```
-## Settings
-
-### Chunk size
-
-You can set chunk size for bulk inserts (default: 1000)
-
-```shell
-indexdump -ch1000 indexname > dump.sql
-```
-
-### Check version
-
-```shell
-indexdump -v
-```
-
-## Backup scenarios
-
-Testing on Debian 10
-
-This is the complete script for cases with exceptions, stopwords and wordforms files
 
 ### Backup
 
 ```shell
-cd /var/backups
-mkdir indexdumpfiles
-cd indexdumpfiles
-indexdump --all --add-drop-table | gzip > dump.sql.gz
-cd ../
-tar -czvf indexdumpfiles.tar.gz indexdumpfiles/
-chmod 0755 indexdumpfiles.tar.gz
-rm -rf indexdumpfiles/
-
+:/var/backup# indexdump test_index > test_index.tar.gz 
 ```
 
 ### Restore
 
 ```shell
-cd /var/backups
-tar -xzvf indexdumpfiles.tar.gz
-cd indexdumpfiles
-ungzip < dump.sql.gz | mysql -P9306
+:/var/backup# tar -xOzf test_index.tar.gz dump.sql | mysql -P9306
 ```
 
-If you want to restore a backup on another node or from another directory you need to specify the parameter --path=dir_for_resore
+### View advanced settings
 
-This only matters if the exceptions, stopwords and wordforms files are listed in any of the indexes. 
+```shell
+:/var/backup# indexdump --help
+```
 
-In other cases, you can restore a backup from any path.
+### View version
+
+```shell
+:/var/backup# indexdump -v
+```
+
+## Full sample dump to AWS s3
+
+### Install and config aws cli
+
+For this example, you must have [aws-cli](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) configured
+
+Dumping indexes is associated with transferring large amounts of data, so you need to set the [chunk size for aws s3](https://docs.aws.amazon.com/es_es/cli/latest/topic/s3-config.html)
+
+I use **eu-central-1** but you can choose any available
+
+```shell
+# ~/.aws/config
+[default]
+region = eu-central-1
+output = json
+s3 =
+    multipart_chunksize = 256MB
+```
+
+### Create bucket
+
+```shell
+:/var/backup# aws s3 mb s3://bucketname --region=eu-central-1
+```
+
+Check result
+
+```shell
+:/var/backup# aws s3 ls
+```
+
+### Check possibility for dump
+
+```shell
+:/var/backup# indexdump --dry-run limit=10 --all 
+```
+
+### Create dump and send to aws s3 in stream
+
+```shell
+:/var/backup# indexdump --add-drop-index --all | aws s3 cp - s3://bucketname/alldump.tar.gz
+```
+
+### Restore
+
+#### Extract exceptions, stopwords and wordforms files
+
+```shell
+aws s3 cp s3://bucketname/alldump.tar.gz - | tar -C . -xzf --exclude="dump.sql" -
+```
+
+#### Restore indexes dump
+
+```shell
+aws s3 cp s3://bucketname/alldump.tar.gz - | tar -xOzf - dump.sql | mysql -P9306
+```

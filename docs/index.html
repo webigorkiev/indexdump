@@ -1,131 +1,101 @@
-<!DOCTYPE html><html class="default"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>indexdump - v1.1.3</title><meta name="description" content="Documentation for indexdump - v1.1.3"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script async src="assets/search.js" id="search-script"></script></head><body><script>document.body.classList.add(localStorage.getItem("tsd-theme") || "os")</script><header><div class="tsd-page-toolbar"><div class="container"><div class="table-wrap"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget search no-caption">Search</label><input type="text" id="tsd-search-field"/></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">indexdump - v1.1.3</a></div><div class="table-cell" id="tsd-widgets"><div id="tsd-filter"><a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a><div class="tsd-filter-group"><div class="tsd-select" id="tsd-filter-visibility"><span class="tsd-select-label">All</span><ul class="tsd-select-list"><li data-value="public">Public</li><li data-value="protected">Public/Protected</li><li data-value="private" class="selected">All</li></ul></div> <input type="checkbox" id="tsd-filter-inherited" checked/><label class="tsd-widget" for="tsd-filter-inherited">Inherited</label><input type="checkbox" id="tsd-filter-externals" checked/><label class="tsd-widget" for="tsd-filter-externals">Externals</label></div></div><a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a></div></div></div></div><div class="tsd-page-title"><div class="container"><h1> indexdump - v1.1.3 </h1></div></div></header><div class="container container-main"><div class="row"><div class="col-8 col-content"><div class="tsd-panel tsd-typography">
+<!DOCTYPE html><html class="default"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>indexdump - v1.2.0</title><meta name="description" content="Documentation for indexdump - v1.2.0"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script async src="assets/search.js" id="search-script"></script></head><body><script>document.body.classList.add(localStorage.getItem("tsd-theme") || "os")</script><header><div class="tsd-page-toolbar"><div class="container"><div class="table-wrap"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget search no-caption">Search</label><input type="text" id="tsd-search-field"/></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">indexdump - v1.2.0</a></div><div class="table-cell" id="tsd-widgets"><div id="tsd-filter"><a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a><div class="tsd-filter-group"><div class="tsd-select" id="tsd-filter-visibility"><span class="tsd-select-label">All</span><ul class="tsd-select-list"><li data-value="public">Public</li><li data-value="protected">Public/Protected</li><li data-value="private" class="selected">All</li></ul></div> <input type="checkbox" id="tsd-filter-inherited" checked/><label class="tsd-widget" for="tsd-filter-inherited">Inherited</label><input type="checkbox" id="tsd-filter-externals" checked/><label class="tsd-widget" for="tsd-filter-externals">Externals</label></div></div><a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a></div></div></div></div><div class="tsd-page-title"><div class="container"><h1> indexdump - v1.2.0 </h1></div></div></header><div class="container container-main"><div class="row"><div class="col-8 col-content"><div class="tsd-panel tsd-typography">
 <a href="#manticore-search-index-dump-utility" id="manticore-search-index-dump-utility" style="color: inherit; text-decoration: none;">
-  <h1>Manticore Search index dump utility</h1>
+  <h1><a href="https://manticoresearch.com/">Manticore Search</a> index dump utility</h1>
 </a>
-<p><a href="https://manticoresearch.com/">Manticore Search</a> index dump utility</p>
-<p>To work correctly, all text fields must be stored. If the field is only indexed - you can not get the original data.
-If the index specifies absolute empty spaces for the exceptions, stopwords and wordforms files, they are required for backup.
-File paths are automatically changed to current_directory/index_name/file_name
-If the user does not have access to the index files, a warning will be written to the dump file</p>
-<p>WARNING: Testing only on Manticore Search 5</p>
-
-<a href="#install" id="install" style="color: inherit; text-decoration: none;">
-  <h2>Install</h2>
-</a>
-<pre><code class="language-shell"><span class="hl-0">yarn global add indexdump</span>
-</code></pre>
-
-<a href="#create-backup" id="create-backup" style="color: inherit; text-decoration: none;">
-  <h2>Create backup</h2>
-</a>
-<p>default:</p>
-<pre><code><span class="hl-0">* </span><span class="hl-1">host</span><span class="hl-0">: </span><span class="hl-2">127.0</span><span class="hl-0">.</span><span class="hl-2">0.1</span><br/><span class="hl-0">* </span><span class="hl-1">port</span><span class="hl-0">: </span><span class="hl-2">9306</span><br/><span class="hl-0">* </span><span class="hl-1">chunk</span><span class="hl-0">: </span><span class="hl-2">1000</span>
-</code></pre>
+<p>Used for logical backup of indexes and exceptions, stopwords and wordforms files. 
+For a physical backup of the index files, use <a href="https://github.com/webigorkiev/indexbackup">indexbackup</a></p>
+<p>To work correctly, all <strong>text fields must be stored</strong>. If the field is only indexed - you can not get the original data.
+If the index specifies absolute path for the exceptions, stopwords and wordforms files, they are required for backup.
+File paths are automatically changed to current_directory/index_name/file_name. To backup these files, you need to have read access or use sudo</p>
+<p>WARNING: Testing only on Manticore Search 5 for RT indexes</p>
 
 <a href="#quick-start" id="quick-start" style="color: inherit; text-decoration: none;">
-  <h3>Quick start:</h3>
-</a>
-<pre><code class="language-shell"><span class="hl-0">indexdump indexname &gt; dump.sql</span>
-</code></pre>
-<p>OR</p>
-<pre><code class="language-shell"><span class="hl-0">indexdump indexname | gzip &gt; dump.sql.gz</span>
-</code></pre>
-
-<a href="#dump-all" id="dump-all" style="color: inherit; text-decoration: none;">
-  <h3>Dump all</h3>
-</a>
-<pre><code class="language-shell"><span class="hl-0">indexdump --all | gzip &gt; dump.sql.gz</span>
-</code></pre>
-
-<a href="#dump-all-without-data" id="dump-all-without-data" style="color: inherit; text-decoration: none;">
-  <h3>Dump all without data</h3>
-</a>
-<pre><code class="language-shell"><span class="hl-0">indexdump --limit=0 --all  &gt; dump.sql</span>
-</code></pre>
-
-<a href="#dump-all-with-prefix" id="dump-all-with-prefix" style="color: inherit; text-decoration: none;">
-  <h3>Dump all with prefix</h3>
-</a>
-<pre><code class="language-shell"><span class="hl-0">indexdump --prefix=db --all | gzip &gt; dump.sql.gz</span>
-</code></pre>
-
-<a href="#dump-for-development-all-with-prefix-with-limit" id="dump-for-development-all-with-prefix-with-limit" style="color: inherit; text-decoration: none;">
-  <h3>Dump for development all with prefix with limit</h3>
-</a>
-<pre><code class="language-shell"><span class="hl-0">indexdump --limit=100 --prefix=db --all | gzip &gt; dump.sql.gz</span>
-</code></pre>
-
-<a href="#dump-with-indication-of-base-directory-for-exceptions-stopwords-and-wordforms-files" id="dump-with-indication-of-base-directory-for-exceptions-stopwords-and-wordforms-files" style="color: inherit; text-decoration: none;">
-  <h3>Dump with indication of base directory for exceptions, stopwords and wordforms files</h3>
-</a>
-<pre><code class="language-shell"><span class="hl-0">indexdump --limit=100 --prefix=db --path=/var/wordsforms --all | gzip &gt; dump.sql.gz</span>
-</code></pre>
-
-<a href="#connection-options" id="connection-options" style="color: inherit; text-decoration: none;">
-  <h3>Connection options</h3>
-</a>
-<pre><code class="language-shell"><span class="hl-0">indexdump -h127.0.0.1 -P9306 -ch1000 indexname &gt; dump.sql</span>
-</code></pre>
-
-<a href="#restore-from-backup" id="restore-from-backup" style="color: inherit; text-decoration: none;">
-  <h3>Restore from backup</h3>
-</a>
-<pre><code class="language-shell"><span class="hl-0">mysql -P9306 &lt; dump.sql</span>
-</code></pre>
-
-<a href="#add-lock-statement" id="add-lock-statement" style="color: inherit; text-decoration: none;">
-  <h3>Add LOCK statement</h3>
-</a>
-<pre><code class="language-shell"><span class="hl-0">indexdump --add-locks indexname &gt; dump.sql</span>
-</code></pre>
-
-<a href="#add-drop-table-statement" id="add-drop-table-statement" style="color: inherit; text-decoration: none;">
-  <h3>Add DROP TABLE statement</h3>
-</a>
-<pre><code class="language-shell"><span class="hl-0">indexdump --add-drop-table indexname &gt; dump.sql</span>
-</code></pre>
-
-<a href="#rename-index" id="rename-index" style="color: inherit; text-decoration: none;">
-  <h3>Rename index</h3>
-</a>
-<pre><code class="language-shell"><span class="hl-0">indexdump --to-table new-index-name indexname &gt; dump.sql</span>
-</code></pre>
-
-<a href="#settings" id="settings" style="color: inherit; text-decoration: none;">
-  <h2>Settings</h2>
+  <h2>Quick start</h2>
 </a>
 
-<a href="#chunk-size" id="chunk-size" style="color: inherit; text-decoration: none;">
-  <h3>Chunk size</h3>
+<a href="#install" id="install" style="color: inherit; text-decoration: none;">
+  <h3>Install</h3>
 </a>
-<p>You can set chunk size for bulk inserts (default: 1000)</p>
-<pre><code class="language-shell"><span class="hl-0">indexdump -ch1000 indexname &gt; dump.sql</span>
+<pre><code class="language-shell"><span class="hl-0">:/var/backup# yarn global add indexdump</span>
 </code></pre>
 
-<a href="#check-version" id="check-version" style="color: inherit; text-decoration: none;">
-  <h3>Check version</h3>
+<a href="#check-backup-possibility" id="check-backup-possibility" style="color: inherit; text-decoration: none;">
+  <h3>Check backup possibility</h3>
 </a>
-<pre><code class="language-shell"><span class="hl-0">indexdump -v</span>
+<pre><code class="language-shell"><span class="hl-0">:/var/backup# indexdump --dry-run test_index</span>
 </code></pre>
-
-<a href="#backup-scenarios" id="backup-scenarios" style="color: inherit; text-decoration: none;">
-  <h2>Backup scenarios</h2>
-</a>
-<p>Testing on Debian 10</p>
-<p>This is the complete script for cases with exceptions, stopwords and wordforms files</p>
 
 <a href="#backup" id="backup" style="color: inherit; text-decoration: none;">
   <h3>Backup</h3>
 </a>
-<pre><code class="language-shell"><span class="hl-3">cd</span><span class="hl-0"> /var/backups</span><br/><span class="hl-0">mkdir indexdumpfiles</span><br/><span class="hl-3">cd</span><span class="hl-0"> indexdumpfiles</span><br/><span class="hl-0">indexdump --all --add-drop-table | gzip &gt; dump.sql.gz</span><br/><span class="hl-3">cd</span><span class="hl-0"> ../</span><br/><span class="hl-0">tar -czvf indexdumpfiles.tar.gz indexdumpfiles/</span><br/><span class="hl-0">chmod 0755 indexdumpfiles.tar.gz</span><br/><span class="hl-0">rm -rf indexdumpfiles/</span><br/>
+<pre><code class="language-shell"><span class="hl-0">:/var/backup# indexdump test_index &gt; test_index.tar.gz </span>
 </code></pre>
 
 <a href="#restore" id="restore" style="color: inherit; text-decoration: none;">
   <h3>Restore</h3>
 </a>
-<pre><code class="language-shell"><span class="hl-3">cd</span><span class="hl-0"> /var/backups</span><br/><span class="hl-0">tar -xzvf indexdumpfiles.tar.gz</span><br/><span class="hl-3">cd</span><span class="hl-0"> indexdumpfiles</span><br/><span class="hl-0">ungzip &lt; dump.sql.gz | mysql -P9306</span>
+<pre><code class="language-shell"><span class="hl-0">:/var/backup# tar -xOzf test_index.tar.gz dump.sql | mysql -P9306</span>
 </code></pre>
-<p>If you want to restore a backup on another node or from another directory you need to specify the parameter --path=dir_for_resore</p>
-<p>This only matters if the exceptions, stopwords and wordforms files are listed in any of the indexes. </p>
-<p>In other cases, you can restore a backup from any path.</p>
+
+<a href="#view-advanced-settings" id="view-advanced-settings" style="color: inherit; text-decoration: none;">
+  <h3>View advanced settings</h3>
+</a>
+<pre><code class="language-shell"><span class="hl-0">:/var/backup# indexdump --help</span>
+</code></pre>
+
+<a href="#view-version" id="view-version" style="color: inherit; text-decoration: none;">
+  <h3>View version</h3>
+</a>
+<pre><code class="language-shell"><span class="hl-0">:/var/backup# indexdump -v</span>
+</code></pre>
+
+<a href="#full-sample-dump-to-aws-s3" id="full-sample-dump-to-aws-s3" style="color: inherit; text-decoration: none;">
+  <h2>Full sample dump to AWS s3</h2>
+</a>
+
+<a href="#install-and-config-aws-cli" id="install-and-config-aws-cli" style="color: inherit; text-decoration: none;">
+  <h3>Install and config aws cli</h3>
+</a>
+<p>For this example, you must have <a href="https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html">aws-cli</a> configured</p>
+<p>Dumping indexes is associated with transferring large amounts of data, so you need to set the <a href="https://docs.aws.amazon.com/es_es/cli/latest/topic/s3-config.html">chunk size for aws s3</a></p>
+<p>I use <strong>eu-central-1</strong> but you can choose any available</p>
+<pre><code class="language-shell"><span class="hl-1"># ~/.aws/config</span><br/><span class="hl-0">[default]</span><br/><span class="hl-0">region = eu-central-1</span><br/><span class="hl-0">output = json</span><br/><span class="hl-0">s3 =</span><br/><span class="hl-0">    multipart_chunksize = 256MB</span>
+</code></pre>
+
+<a href="#create-bucket" id="create-bucket" style="color: inherit; text-decoration: none;">
+  <h3>Create bucket</h3>
+</a>
+<pre><code class="language-shell"><span class="hl-0">:/var/backup# aws s3 mb s3://bucketname --region=eu-central-1</span>
+</code></pre>
+<p>Check result</p>
+<pre><code class="language-shell"><span class="hl-0">:/var/backup# aws s3 ls</span>
+</code></pre>
+
+<a href="#check-possibility-for-dump" id="check-possibility-for-dump" style="color: inherit; text-decoration: none;">
+  <h3>Check possibility for dump</h3>
+</a>
+<pre><code class="language-shell"><span class="hl-0">:/var/backup# indexdump --dry-run limit=10 --all </span>
+</code></pre>
+
+<a href="#create-dump-and-send-to-aws-s3-in-stream" id="create-dump-and-send-to-aws-s3-in-stream" style="color: inherit; text-decoration: none;">
+  <h3>Create dump and send to aws s3 in stream</h3>
+</a>
+<pre><code class="language-shell"><span class="hl-0">:/var/backup# indexdump --add-drop-index --all | aws s3 cp - s3://bucketname/alldump.tar.gz</span>
+</code></pre>
+
+<a href="#restore-1" id="restore-1" style="color: inherit; text-decoration: none;">
+  <h3>Restore</h3>
+</a>
+
+<a href="#extract-exceptions-stopwords-and-wordforms-files" id="extract-exceptions-stopwords-and-wordforms-files" style="color: inherit; text-decoration: none;">
+  <h4>Extract exceptions, stopwords and wordforms files</h4>
+</a>
+<pre><code class="language-shell"><span class="hl-0">aws s3 cp s3://bucketname/alldump.tar.gz - | tar -C </span><span class="hl-2">.</span><span class="hl-0"> -xzf --exclude=</span><span class="hl-3">&quot;dump.sql&quot;</span><span class="hl-0"> -</span>
+</code></pre>
+
+<a href="#restore-indexes-dump" id="restore-indexes-dump" style="color: inherit; text-decoration: none;">
+  <h4>Restore indexes dump</h4>
+</a>
+<pre><code class="language-shell"><span class="hl-0">aws s3 cp s3://bucketname/alldump.tar.gz - | tar -xOzf - dump.sql | mysql -P9306</span>
+</code></pre>
 </div></div><div class="col-4 col-menu menu-sticky-wrap menu-highlight"><nav class="tsd-navigation primary"><ul><li class="current"><a href="modules.html">Exports</a></li></ul></nav><nav class="tsd-navigation secondary menu-sticky"><ul></ul></nav></div></div></div><footer class="with-border-bottom"><div class="container"><h2>Settings</h2><p>Theme <select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></p></div></footer><div class="container tsd-generator"><p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div><div class="overlay"></div><script src="assets/main.js"></script></body></html>

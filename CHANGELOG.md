@@ -1,3 +1,14 @@
+## 1.2.0
+
+### Improvements
+
+* Create archive
+* Add --dry-run option
+* Add --data-dir options
+* Add --add-config option
+* Add --help option
+* Documentation changed
+
 ## 1.1.3
 
 ### Improvements

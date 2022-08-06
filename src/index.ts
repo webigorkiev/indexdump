@@ -4,10 +4,15 @@ import margv from "margv";
 import mariadb from "mariadb";
 import {stdout} from "process";
 import {performance} from "perf_hooks";
+import chalk from "chalk";
+import archiver from "archiver";
+import {PassThrough, Readable, Writable} from "stream";
 
 (async() => {
     const start = performance.now();
     const argv = margv();
+
+    // Show version
     const showVersion = argv.v || argv.version;
 
     if(showVersion) {
@@ -16,11 +21,37 @@ import {performance} from "perf_hooks";
     }
 
     // Check arguments length
-    if(argv.$.length <= 1) {
-        console.error("Error parse arguments. Use: -h<host> -P<port> <index> > dump.sql")
+    if(argv.$.length < 3) {
+        console.error("Error parse arguments. Use: -h<host> -P<port> <index> > dump.sql");
         process.exit(0);
     }
 
+    // Help
+    const showHelp = !!argv.help;
+
+    if(showHelp) {
+        const TAB3 = "\t\t\t";
+        const TAB4 = "\t\t\t\t";
+        const TAB5 = "\t\t\t\t\t";
+        stdout.write(chalk.green("List of settings\n"));
+        stdout.write(chalk.bold("-h/--host") + TAB4 + "host (default: 127.0.0.1)\n");
+        stdout.write(chalk.bold("-P/--port") + TAB4 + "port (default: 9306)\n");
+        stdout.write(chalk.bold("--dry-run") + TAB4 + "run in dry mode\n");
+        stdout.write(chalk.bold("-ch/--chunk") + TAB4 + "chunk size for bulk inserts\n");
+        stdout.write(chalk.bold("--add-drop-index\n--add-drop-table") + "\t\t" + "add DROP TABLE\n");
+        stdout.write(chalk.bold("--add-locks") + TAB4 + "add LOCK\t" + chalk.red("not currently implemented in Manticore Search\n"));
+        stdout.write(chalk.bold("--to-index") + TAB4 + "rename to index in backup\t" + chalk.red("only for single index\n"));
+        stdout.write(chalk.bold("--prefix") + TAB4 + "add prefix for all indexes\n");
+        stdout.write(chalk.bold("--indexes test1\n--indexes test2\n--indexes=test1,test2") + "\t" + "indexes list for dump\n");
+        stdout.write(chalk.bold("--all") + TAB5 + "all indexes\n");
+        stdout.write(chalk.bold("--limit") + TAB5 + "add limit for all indexes, --limit=0 dump only structure\n");
+        stdout.write(chalk.bold("--path") + TAB5 + "path from which the index will be restored (default: current)\n");
+        stdout.write(chalk.bold("--data-dir") + TAB4 + "allow to set manticore data path\n");
+        stdout.write(chalk.bold("--add-config") + TAB3 + "add manticore.json to dump\n");
+        process.exit(0);
+    }
+
+    // Input args
     const host = (argv.$.find((v: string) => v.indexOf("-h") === 0) || "").replace("-h", "") || argv["h"] || argv["host"] || "127.0.01";
     const port = (argv.$.find((v: string) => v.indexOf("-P") === 0) || "").replace("-P", "") || argv["P"] || argv["port"] || 9306;
     const chunk = (argv.$.find((v: string) => v.indexOf("-ch") === 0) || "").replace("-ch", "") || argv["ch"] || argv["chunk"] || 1000;
@@ -29,19 +60,79 @@ import {performance} from "perf_hooks";
     const toTable = argv['to-index'] || argv['to-table'];
     const toPrefix = argv['prefix'] || "";
     const tables = argv['indexes'] || argv['tables'];
-    const all = argv['all']; // all - all tables or array of tables names
+    const isAll = argv['all']; // all - all tables or array of tables names
     const limit = argv['limit'] ? parseInt(argv['limit']) : argv['limit'];
     const filesPath = argv['path'] || path.resolve();
     const index = tables || argv.$.pop();
+    const dryRun = !!argv['dry-run'];
+    const dataDir = argv['data-dir'] || "";
+    const addConfig = !!argv['add-config'];
+
+    // Files that need to add to archive
+    const filesToCopy = [] as {file: string, path: string}[]
 
     if(toTable && tables) {
         console.error("Error parse arguments. You can`t use to-table and tables together")
         process.exit(0);
     }
 
+    dryRun && stdout.write(chalk.yellow("\n----- Start dry run -----\n"));
+    const devNull = new Writable({
+        write(chunk: any, encoding: BufferEncoding, callback: (error?: (Error | null)) => void) { setImmediate(callback); }
+    });
+
+    // Archiver
+    const arch = archiver('tar', {gzip: true});
+    !dryRun && arch.pipe(stdout);
+    dryRun && arch.pipe(devNull);
+
+    // Promisify stream
+    const promisifyStream = (file: string, name: string) => {
+
+        // Skip files without access
+        if(!dryRun) {
+            try {
+                fs.accessSync(file, fs.constants.R_OK);
+            } catch(e: any) {
+                return;
+            }
+        }
+
+        dryRun && stdout.write(`${file} => ./${name}`);
+        return new Promise(resolve => {
+            const entryListener = () => {
+                arch.off("entry", entryListener);
+                arch.off("error", errorListener);
+                dryRun && stdout.write(chalk.green(" " + "done\n"));
+                resolve(true);
+            }
+            const errorListener = () => {
+                arch.off("entry", entryListener);
+                arch.off("error", errorListener);
+                dryRun && stdout.write(chalk.red(" " + "not accessible\n"));
+                resolve(true);
+            }
+            arch
+                .append(fs.createReadStream(file), {name})
+                .on("entry", entryListener)
+                .on("error", errorListener);
+
+        });
+    }
+
+    // Create stream
+    const createStream = (name: string): PassThrough => {
+        dryRun && stdout.write(`./${name}\n`);
+        const stream = new PassThrough();
+        arch
+            .append(stream, {name})
+
+        return stream;
+    }
+
     // helper for matching path
-    const pathReplacer = (strIndexCreate: string, pathToFile: string): string => {
-        ["exceptions","stopwords","wordforms"].forEach((label) => {
+    const pathReplacer = async(strIndexCreate: string, pathToFile: string, index: string): Promise<string> => {
+        for(const label of  ["exceptions","stopwords","wordforms"]) {
             const matches = strIndexCreate.match(RegExp(`${label}='([^']*)'`));
             const files =  (matches?.[1]?.split(/\s+/) || []).filter((file) => /^([A-Z]:)?\//.test(file));
 
@@ -49,19 +140,9 @@ import {performance} from "perf_hooks";
                 const newFiles = files.map((file) => path.resolve(pathToFile, `./${path.basename(file)}`));
                 const newFilesString = newFiles.join(' ');
                 strIndexCreate = strIndexCreate.replace(matches![0], `${label}='${newFilesString}'`);
-
-                for(let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    const newFile = newFiles[i];
-                    try {
-                        fs.mkdirSync(path.dirname(newFile), {recursive: true});
-                        fs.copyFileSync(file, newFile);
-                    } catch(e: any) {
-                        stdout.write(`-- ${e.message} --\n`);
-                    }
-                }
+                files.map((file) => filesToCopy.push({file, path: path.join(index, path.basename(file))}));
             }
-        });
+        }
 
         return strIndexCreate;
     }
@@ -69,21 +150,23 @@ import {performance} from "perf_hooks";
     // connection
     const conn = await mariadb.createConnection({host, port});
 
+    // Dump index
     const dumpTable = async(
-        index: string
+        index: string,
+        output: PassThrough
     ) => {
         const toIndex = toTable ? `${toPrefix}${toTable}` : `${toPrefix}${index}`;
 
         // helpers
-        const startChunk = (cols: string[]) => stdout.write(`INSERT INTO ${toIndex} (${cols.join(",")}) VALUES`);
-        const endChunk = (rows: string[]) => stdout.write(`${rows.join(",")};\n`);
+        const startChunk = (cols: string[]) => output.write(`INSERT INTO ${toIndex} (${cols.join(",")}) VALUES`);
+        const endChunk = (rows: string[]) => output.write(`${rows.join(",")};\n`);
 
-        stdout.write(`-- START DUMP ${index} --\n`);
-        toIndex !== (index || toPrefix) && stdout.write(`-- WITH TABLE NAME CHANGE TO ${toIndex} --\n`);
+        output.write(`-- START DUMP ${index} --\n`);
+        toIndex !== (index || toPrefix) && output.write(`-- WITH TABLE NAME CHANGE TO ${toIndex} --\n`);
 
         // Add drop table
         if(dropTable) {
-            stdout.write(`DROP TABLE IF EXISTS ${toIndex};\n`);
+            output.write(`DROP TABLE IF EXISTS ${toIndex};\n`);
         }
 
         // Select types
@@ -96,7 +179,7 @@ import {performance} from "perf_hooks";
                 ac[row['Field']] = row['Type'];
 
                 if(row['Type'] === 'text' && row['Properties'].indexOf('stored') === -1) {
-                    stdout.write(`-- WARNING: field ${row['Field']} NOT stored, so not included in output --\n`);
+                    output.write(`-- WARNING: field ${row['Field']} NOT stored, so not included in output --\n`);
                 }
 
                 return ac;
@@ -115,8 +198,8 @@ import {performance} from "perf_hooks";
         let createTableFiltered = createTableString.split(/\r?\n/)
             .filter((row: string) => !allFields.includes(row.split(/\s+/)[0]) || allowsFields.includes(row.split(/\s+/)[0]))
             .join("\n");
-        createTableFiltered = pathReplacer(createTableFiltered, path.resolve(filesPath, `./${toIndex}`));
-        stdout.write(createTableFiltered + ";\n");
+        createTableFiltered = await pathReplacer(createTableFiltered, path.resolve(filesPath, `./${toIndex}`), toIndex);
+        output.write(createTableFiltered + ";\n");
 
         if(limit !== 0) {
             // Data
@@ -174,12 +257,14 @@ import {performance} from "perf_hooks";
                 })
             }
 
-            stdout.write(`-- COUNT: ${count} --\n`);
+            output.write(`-- COUNT: ${count} --\n`);
         }
 
         // End rows
-        stdout.write(`-- END DUMP ${index} --\n`);
+        output.write(`-- END DUMP ${index} --\n`);
     }
+
+    // Tables to Dump
     let tablesList = [index];
 
     if(tables) {
@@ -190,18 +275,54 @@ import {performance} from "perf_hooks";
         }
     }
 
-    if(all) {
+    // All indexes
+    if(isAll) {
         tablesList = (await conn.query(`SHOW TABLES;`))
             .map((row: {Index: string}) => row['Index'])
     }
 
+    // Create stream
+    const stream = createStream("dump.sql");
+
     // Dump
     for(const current of tablesList) {
-        await dumpTable(current);
+        dryRun && stdout.write(`${current}`);
+        await dumpTable(current, stream);
+        dryRun && stdout.write(chalk.green(" " + "done\n"));
+    }
+    stream.write(`\n`);
+    const interval = Math.round((performance.now() - start) / 10) / 100;
+    stream.write(`-- TIME: ${interval}s --\n`);
+    stream.end();
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // files
+    for(const {file, path} of filesToCopy) {
+        await promisifyStream(file, path);
     }
 
-    stdout.write(`\n`);
-    const interval = Math.round((performance.now() - start) / 10) / 100;
-    stdout.write(`-- TIME: ${interval}s --\n`);
+    // manticore.json
+    if((isAll || addConfig) && filesToCopy.length) {
+        // try to find manticore.json
+        const base = dataDir || path.dirname(filesToCopy[0].file);
+        if(base) {
+            const manticoreJson = path.join(base, "..", "manticore.json");
+
+            try {
+                dryRun && stdout.write(chalk.green(`manticore.json\n`))
+                await promisifyStream(manticoreJson, path.basename(manticoreJson));
+            } catch(e) {}
+        }
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+    dryRun && stdout.write(`\n`);
+    dryRun && stdout.write(`TIME: ${interval}s\n`);
+
+    // End process
+    await arch.finalize();
     await conn.end();
+
+    dryRun && stdout.write(chalk.yellow("----- End dry run -----\n\n"));
 })();
