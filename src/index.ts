@@ -40,7 +40,7 @@ import {PassThrough, Readable, Writable} from "stream";
         stdout.write(chalk.bold("-ch/--chunk") + TAB4 + "chunk size for bulk inserts\n");
         stdout.write(chalk.bold("--add-drop-index\n--add-drop-table") + "\t\t\t" + "add DROP TABLE\n");
         stdout.write(chalk.bold("--add-locks") + TAB4 + "add LOCK\t" + chalk.red("not currently implemented in Manticore Search\n"));
-        stdout.write(chalk.bold("--add-freeze") + TAB4 + "add FREEZE\t");
+        stdout.write(chalk.bold("--add-freeze") + TAB4 + "add FREEZE\n");
         stdout.write(chalk.bold("--to-index") + TAB4 + "rename to index in backup\t" + chalk.red("only for single index\n"));
         stdout.write(chalk.bold("--prefix") + TAB4 + "add prefix for all indexes\n");
         stdout.write(chalk.bold("--indexes test1\n--indexes test2\n--indexes=test1,test2") + "\t" + "indexes list for dump\n");
