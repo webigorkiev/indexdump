@@ -5,7 +5,7 @@ For a physical backup of the index files, use [indexbackup](https://github.com/w
 
 To work correctly, all **text fields must be stored**. If the field is only indexed - you can not get the original data.
 If the index specifies absolute path for the exceptions, stopwords and wordforms files, they are required for backup.
-File paths are automatically changed to current_directory/index_name/file_name. To backup these files, you need to have read access or use sudo
+File paths are automatically changed to current_directory/index_name/file_name. To back up these files, you need to have read access or use sudo
 
 WARNING: Testing only on Manticore Search 5 for RT indexes
 

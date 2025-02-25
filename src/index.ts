@@ -38,8 +38,9 @@ import {PassThrough, Readable, Writable} from "stream";
         stdout.write(chalk.bold("-P/--port") + TAB4 + "port (default: 9306)\n");
         stdout.write(chalk.bold("--dry-run") + TAB4 + "run in dry mode\n");
         stdout.write(chalk.bold("-ch/--chunk") + TAB4 + "chunk size for bulk inserts\n");
-        stdout.write(chalk.bold("--add-drop-index\n--add-drop-table") + "\t\t" + "add DROP TABLE\n");
+        stdout.write(chalk.bold("--add-drop-index\n--add-drop-table") + "\t\t\t" + "add DROP TABLE\n");
         stdout.write(chalk.bold("--add-locks") + TAB4 + "add LOCK\t" + chalk.red("not currently implemented in Manticore Search\n"));
+        stdout.write(chalk.bold("--add-freeze") + TAB4 + "add FREEZE\t");
         stdout.write(chalk.bold("--to-index") + TAB4 + "rename to index in backup\t" + chalk.red("only for single index\n"));
         stdout.write(chalk.bold("--prefix") + TAB4 + "add prefix for all indexes\n");
         stdout.write(chalk.bold("--indexes test1\n--indexes test2\n--indexes=test1,test2") + "\t" + "indexes list for dump\n");
@@ -57,6 +58,7 @@ import {PassThrough, Readable, Writable} from "stream";
     const chunk = (argv.$.find((v: string) => v.indexOf("-ch") === 0) || "").replace("-ch", "") || argv["ch"] || argv["chunk"] || 1000;
     const dropTable = !!(argv['add-drop-index'] || argv['add-drop-table']);
     const addLocks = !!argv['add-locks'];
+    const addFreeze = !!argv['add-freeze'];
     const toTable = argv['to-index'] || argv['to-table'];
     const toPrefix = argv['prefix'] || "";
     const tables = argv['indexes'] || argv['tables'];
@@ -207,7 +209,8 @@ import {PassThrough, Readable, Writable} from "stream";
 
             while(next) {
                 let i = 0, rows = [] as string[];
-                addLocks && await conn.query(`LOCK ${index};`);
+                addLocks && await conn.query(`LOCK TABLES ${index} WRITE;`); // LOCK TABLES `estok_categories` WRITE;
+                addFreeze && await conn.query(`FREEZE ${index};`);
                 await new Promise(resolve => {
                     const stream = conn.queryStream(`SELECT *
                                                      FROM ${index}
@@ -251,7 +254,8 @@ import {PassThrough, Readable, Writable} from "stream";
                             } else {
                                 endChunk(rows);
                             }
-                            addLocks && await conn.query(`UNLOCK ${index};`);
+                            addFreeze && await conn.query(`UNFREEZE ${index};`);
+                            addLocks && await conn.query(`UNLOCK TABLES;`); // UNLOCK TABLES;
                             resolve(true);
                         })
                 })
