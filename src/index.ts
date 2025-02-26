@@ -210,7 +210,7 @@ import {PassThrough, Readable, Writable} from "stream";
             while(next) {
                 let i = 0, rows = [] as string[];
                 addLocks && await conn.query(`LOCK TABLES ${index} WRITE;`); // LOCK TABLES `estok_categories` WRITE;
-                addFreeze && await conn.query(`FREEZE ${index};`);
+                addFreeze && await conn.query(`FREEZE ${index}`);
                 await new Promise(resolve => {
                     const stream = conn.queryStream(`SELECT *
                                                      FROM ${index}
@@ -254,7 +254,7 @@ import {PassThrough, Readable, Writable} from "stream";
                             } else {
                                 endChunk(rows);
                             }
-                            addFreeze && await conn.query(`UNFREEZE ${index};`);
+                            addFreeze && await conn.query(`UNFREEZE ${index}`);
                             addLocks && await conn.query(`UNLOCK TABLES;`); // UNLOCK TABLES;
                             resolve(true);
                         })
