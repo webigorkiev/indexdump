@@ -161,7 +161,7 @@ import {PassThrough, Readable, Writable} from "stream";
 
         // helpers
         const startChunk = (cols: string[]) => output.write(`INSERT INTO ${toIndex} (${cols.join(",")}) VALUES`);
-        const endChunk = (rows: string[]) => output.write(`${rows.join(",")};\n`);
+        const endChunk = (rows: string[]) => output.write(`${rows.join(",\n")};\n`);
 
         output.write(`-- START DUMP ${index} --\n`);
         toIndex !== (index || toPrefix) && output.write(`-- WITH TABLE NAME CHANGE TO ${toIndex} --\n`);
